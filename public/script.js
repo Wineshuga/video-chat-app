@@ -40,10 +40,7 @@ socket.on("existing-users", (users) => {
       clearInterval(waitForStream);
       users.forEach((userId) => {
         const peer = createPeer(userId, true);
-        console.log("existing user joined:", userId);
-        console.log("existing user peer object:", peer);
         peers[userId] = peer;
-        console.log("existing user peers retrieved:", peers);
         localStream
           .getTracks()
           .forEach((track) => peer.addTrack(track, localStream));
@@ -60,10 +57,7 @@ socket.on("user-joined", (socketId) => {
       clearInterval(waitForStream);
       // Create a new peer connection for the new user (existing users initiate)
       const peer = createPeer(socketId, false);
-      console.log("new user joined:", socketId);
-      console.log("new user peer object:", peer);
       peers[socketId] = peer;
-      console.log("new user peers retrieved:", peers);
       localStream
         .getTracks()
         .forEach((track) => peer.addTrack(track, localStream));
@@ -76,9 +70,7 @@ function createPeer(socketId, initiator) {
   const peer = new RTCPeerConnection({
     iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
   });
-  console.log("first peer object created:", peer);
   peer.onicecandidate = (event) => {
-    console.log("ICE event and event candidate:", event, event.candidate);
     if (event.candidate) {
       socket.emit("ice-candidate", {
         target: socketId,
@@ -117,29 +109,16 @@ function createPeer(socketId, initiator) {
 
 // Handle offer from initiator(existing user) and sends an answer
 socket.on("offer", async ({ sdp, from }) => {
-  const peer = createPeer(from, false);
-  peers[from] = peer;
-
-  // Wait until localStream is available before proceeding with WebRTC operations
-  const waitForStream = setInterval(async () => {
-    if (localStream) {
-      clearInterval(waitForStream);
-
-      // Add local tracks to the peer connection FIRST
-      localStream
-        .getTracks()
-        .forEach((track) => peer.addTrack(track, localStream));
-
-      // Then proceed with WebRTC signaling
-      await peer.setRemoteDescription(new RTCSessionDescription(sdp));
-      const answer = await peer.createAnswer();
-      await peer.setLocalDescription(answer);
-      socket.emit("answer", {
-        target: from,
-        sdp: peer.localDescription,
-      });
-    }
-  }, 100);
+  const peer = peers[from];
+  if (peer) {
+    await peer.setRemoteDescription(new RTCSessionDescription(sdp));
+    const answer = await peer.createAnswer();
+    await peer.setLocalDescription(answer);
+    socket.emit("answer", {
+      target: from,
+      sdp: peer.localDescription,
+    });
+  }
 });
 
 // Handle answer
