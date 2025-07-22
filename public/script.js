@@ -1,3 +1,5 @@
+import { setupControls } from "./controls.js";
+
 const localVideo = document.getElementById("localVideo");
 const remoteVideos = document.getElementById("remoteVideos");
 
@@ -9,6 +11,14 @@ let localStream;
 // Store peer connections
 // key = socketId, value = RTCPeerConnection
 const peers = {};
+
+// Set up controls
+const waitForStream = setInterval(() => {
+  if (localStream) {
+    clearInterval(waitForStream);
+    setupControls({ localStream, peers, socket });
+  }
+}, 100);
 
 // Get local media
 navigator.mediaDevices
@@ -129,4 +139,14 @@ socket.on("answer", async ({ sdp, from }) => {
 // Handle ICE
 socket.on("ice-candidate", ({ candidate, from }) => {
   peers[from]?.addIceCandidate(new RTCIceCandidate(candidate));
+});
+
+// Handle user left
+socket.on("user-left", (socketId) => {
+  const video = document.getElementById(socketId);
+  if (video) video.remove();
+  if (peers[socketId]) {
+    peers[socketId].close();
+    delete peers[socketId];
+  }
 });
