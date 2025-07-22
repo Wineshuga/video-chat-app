@@ -22,6 +22,7 @@ io.on("connection", (socket) => {
 
   socket.on("join", (roomId) => {
     socket.join(roomId);
+    socket.currentRoom = roomId; // Store the room ID
     const room = io.sockets.adapter.rooms.get(roomId) || new Set();
     const otherUsers = [...room].filter((id) => id !== socket.id);
 
@@ -45,6 +46,12 @@ io.on("connection", (socket) => {
       candidate: data.candidate,
       from: socket.id,
     });
+  });
+
+  socket.on("disconnecting", () => {
+    if (socket.currentRoom) {
+      socket.to(socket.currentRoom).emit("user-left", socket.id);
+    }
   });
 });
 
