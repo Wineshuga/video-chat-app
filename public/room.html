@@ -1,18 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>WebRTC Video Chat</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <div id="videoSection">
-    <video id="localVideo" autoplay playsinline></video>
-    <div id="remoteVideos"></div>
-  </div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebRTC Video Chat</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div id="videoSection">
+      <div id="localVideoContainer">
+        <video id="localVideo" autoplay playsinline></video>
 
-  <script src="/socket.io/socket.io.js" defer></script>
-  <script src="script.js" defer></script>
-</body>
+        <div id="controls">
+          <button id="toggleMic">
+            <i class="fa-solid fa-microphone" title="Mute"></i>
+          </button>
+          <button id="toggleCam">
+            <i class="fa-solid fa-camera" title="Disable"></i>
+          </button>
+          <button id="leaveRoom" title="Leave Room">
+            <i class="fa-solid fa-door-open"></i>
+          </button>
+        </div>
+      </div>
+      <div id="remoteVideos"></div>
+    </div>
+
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script type="module" src="script.js" defer></script>
+    <script
+      src="https://kit.fontawesome.com/4dbfbae31e.js"
+      crossorigin="anonymous"
+    ></script>
+  </body>
 </html>
