@@ -1,7 +1,7 @@
 import { setupControls } from "./controls.js";
 
 const localVideo = document.getElementById("localVideo");
-const remoteVideos = document.getElementById("remoteVideos");
+const videoSection = document.getElementById("videoSection");
 
 // Initialize socket.io
 const socket = io();
@@ -98,7 +98,7 @@ function createPeer(socketId, initiator) {
       remoteVideo.id = socketId;
       remoteVideo.autoplay = true;
       remoteVideo.playsInline = true;
-      remoteVideos.appendChild(remoteVideo);
+      videoSection.appendChild(remoteVideo);
     }
     remoteVideo.srcObject = event.streams[0];
   };
