@@ -9,7 +9,7 @@
   <body>
     <div id="videoSection">
       <div id="localVideoContainer">
-        <video id="localVideo" autoplay playsinline></video>
+        <video id="localVideo" autoplay playsinline muted></video>
 
         <div id="controls">
           <button id="toggleMic">
@@ -23,7 +23,6 @@
           </button>
         </div>
       </div>
-      <div id="remoteVideos"></div>
     </div>
 
     <script src="/socket.io/socket.io.js" defer></script>

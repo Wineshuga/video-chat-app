@@ -1,10 +1,14 @@
 import { setupControls } from "./controls.js";
 
 const localVideo = document.getElementById("localVideo");
-const remoteVideos = document.getElementById("remoteVideos");
+const videoSection = document.getElementById("videoSection");
 
 // Initialize socket.io
 const socket = io();
+
+// Fetch ICE servers from the server
+const response = await fetch("/ice");
+const { iceServers } = await response.json();
 
 let localStream;
 
@@ -26,7 +30,6 @@ navigator.mediaDevices
   .then((stream) => {
     localStream = stream;
     localVideo.srcObject = stream;
-    localVideo.muted = true; // Mute local audio to prevent hearing yourself
   })
   .catch((err) => {
     alert("Could not access media devices.");
@@ -77,9 +80,7 @@ socket.on("user-joined", (socketId) => {
 
 // Create and manage peer connections
 function createPeer(socketId, initiator) {
-  const peer = new RTCPeerConnection({
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-  });
+  const peer = new RTCPeerConnection({ iceServers });
   peer.onicecandidate = (event) => {
     if (event.candidate) {
       socket.emit("ice-candidate", {
@@ -97,7 +98,7 @@ function createPeer(socketId, initiator) {
       remoteVideo.id = socketId;
       remoteVideo.autoplay = true;
       remoteVideo.playsInline = true;
-      remoteVideos.appendChild(remoteVideo);
+      videoSection.appendChild(remoteVideo);
     }
     remoteVideo.srcObject = event.streams[0];
   };
